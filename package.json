@@ -6,7 +6,7 @@
   "homepage": "https://santea.github.io/kb-trend-map",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
+    "build": "vite build && copy 20260406_주간시계열.xlsx dist",
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",

@@ -56,6 +56,30 @@ export default function App() {
   const weekLabels = parsedData?.labels || [];
   const WEEKS_COUNT = weekLabels.length;
 
+  // Load default data on mount
+  useEffect(() => {
+    const loadDefaultData = async () => {
+      try {
+        const baseUrl = (import.meta as any).env.BASE_URL || '/';
+        const res = await fetch(`${baseUrl}20260406_주간시계열.xlsx`);
+        if (res.ok) {
+          const buffer = await res.arrayBuffer();
+          // Create a File object to ensure compatibility with parseRealEstateExcel
+          const file = new File([buffer], "20260406_주간시계열.xlsx");
+          const data = await parseRealEstateExcel(file);
+          setParsedData(data);
+        }
+      } catch (err) {
+        console.error("Failed to load default data:", err);
+      }
+    };
+
+    if (!parsedData) {
+      loadDefaultData();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Playback logic
   useEffect(() => {
     let interval: NodeJS.Timeout;
