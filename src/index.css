@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-main: "Helvetica Neue", Arial, sans-serif;
+  --font-inter: "Inter", sans-serif;
+
+  --color-bg-main: #f0f2f5;
+  --color-card-bg: #ffffff;
+  --color-accent-red: #ff4d4f;
+  --color-accent-blue: #1890ff;
+  --color-accent-gray: #f0f0f0;
+  --color-text-primary: #1f1f1f;
+  --color-text-secondary: #8c8c8c;
+}
+
+@layer base {
+  body {
+    @apply bg-bg-main text-text-primary font-main antialiased;
+  }
+}
+
+.vibrant-card {
+  @apply bg-card-bg rounded-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.05)];
+}
+
+.vibrant-header {
+  @apply h-[70px] bg-card-bg border-b border-[#e8e8e8] flex items-center justify-between px-[30px] shrink-0;
+}
+
+.vibrant-play-btn {
+  @apply w-[50px] h-[50px] bg-text-primary rounded-full flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity;
+}
+
+.vibrant-slider-handle {
+  @apply w-5 h-5 bg-accent-red rounded-full shadow-[0_0_0_6px_rgba(255,77,79,0.2)];
+}
+
+.region-path {
+  transition: fill 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
