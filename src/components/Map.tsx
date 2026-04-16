@@ -19,7 +19,7 @@ interface MapProps {
 // Color scale: Blue (-2% or less) -> White (0%) -> Red (+2% or more)
 const colorScale = scaleLinear<string>()
   .domain([-2, 0, 2])
-  .range(['#1890ff', '#ffffff', '#ff4d4f'])
+  .range(['#3333ff', '#ffffff', '#ff3333'])
   .interpolate(interpolateRgb);
 
 const geoIdMap: Record<string, string> = {}; // We will rely mostly on exact Korean name matching for districts
@@ -106,7 +106,7 @@ export default function Map({ regionData, currentWeekIndex, title, transformRef,
 
     // 1. First try exact match
     let regionObj = regionData.find(r => r.name === nameKo || r.id === nameKo);
-    
+
     // 2. If exact match fails, find suffix match (뒷부분만 일치하는 경우)
     // e.g. Map:"성남시수정구" <-> Excel:"수정구" (Matches!)
     // e.g. Map:"성남시수정구" <-> Excel:"성남시" (Does NOT match, because it is at the front)
@@ -151,8 +151,8 @@ export default function Map({ regionData, currentWeekIndex, title, transformRef,
               </button>
             </div>
 
-            <TransformComponent 
-              wrapperStyle={{ width: '100%', height: '100%' }} 
+            <TransformComponent
+              wrapperStyle={{ width: '100%', height: '100%' }}
               contentStyle={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <svg
