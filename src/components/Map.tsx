@@ -128,14 +128,15 @@ export default function Map({ regionData, currentWeekIndex, title, transformRef,
 
       <TransformWrapper
         ref={transformRef}
-        onTransformed={(ref, state) => onTransformed?.(ref, state)}
-        onPanning={(ref, state) => onTransformed?.(ref, state)}
-        onZooming={(ref, state) => onTransformed?.(ref, state)}
+        onTransformed={(ref) => { onTransformed?.(ref, ref?.state); }}
+        onPanning={(ref) => { onTransformed?.(ref, ref?.state); }}
+        onZoom={(ref) => { onTransformed?.(ref, ref?.state); }}
+        onWheel={(ref) => { onTransformed?.(ref, ref?.state); }}
         initialScale={1}
         minScale={0.5}
         maxScale={8}
         centerOnInit={true}
-        wheel={{ step: 0.1 }}
+        wheel={{ step: 0.03 }}
       >
         {({ zoomIn, zoomOut, resetTransform }) => (
           <>

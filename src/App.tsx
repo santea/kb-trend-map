@@ -30,12 +30,16 @@ export default function App() {
 
   const handleTransformed = (source: 'SALE' | 'JEONSE', ref: any, state: any) => {
     // Only propagate the event if this map is the one actively being interacted with
+    // If activeMap is null (no prior hover), set it to source automatically
+    if (activeMap.current === null) {
+      activeMap.current = source;
+    }
     if (activeMap.current !== source) return;
 
     const targetRef = source === 'SALE' ? mapJeonseRef : mapSaleRef;
     if (!targetRef.current) return;
 
-    const { positionX, positionY, scale } = state;
+    const { positionX, positionY, scale } = state || {};
 
     // Prevent passing NaN values which breaks react-zoom-pan-pinch
     if (
@@ -46,8 +50,17 @@ export default function App() {
       return;
     }
 
-    // 0ms animation time = instant sync without transition delay
-    targetRef.current.setTransform(positionX, positionY, scale, 0);
+    try {
+      if (targetRef.current.instance) {
+        // Bypass animations for instant exact synchronization
+        targetRef.current.instance.setState(scale, positionX, positionY);
+        targetRef.current.instance.applyTransformation();
+      } else {
+        targetRef.current.setTransform(positionX, positionY, scale, 0);
+      }
+    } catch (err) {
+      // silent fail
+    }
   };
 
   const saleRegionData = parsedData?.saleData || [];
@@ -85,16 +98,31 @@ export default function App() {
     let interval: NodeJS.Timeout;
     if (isPlaying && WEEKS_COUNT > 0) {
       interval = setInterval(() => {
-        setCurrentWeek((prev) => (prev + 1) % WEEKS_COUNT);
+        setCurrentWeek((prev) => {
+          if (prev >= WEEKS_COUNT - 1) {
+            return prev;
+          }
+          return prev + 1;
+        });
       }, 500 / speedMultiplier);
     }
     return () => clearInterval(interval);
   }, [isPlaying, speedMultiplier, WEEKS_COUNT]);
 
+  // Handle auto-pause when reaching the end
+  useEffect(() => {
+    if (isPlaying && currentWeek >= WEEKS_COUNT - 1) {
+      setIsPlaying(false);
+    }
+  }, [currentWeek, isPlaying, WEEKS_COUNT]);
+
   const currentWeekLabel = weekLabels[currentWeek] || '';
 
   const handlePlayToggle = () => {
     if (WEEKS_COUNT > 0) {
+      if (!isPlaying && currentWeek >= WEEKS_COUNT - 1) {
+        setCurrentWeek(0);
+      }
       setIsPlaying(!isPlaying);
     }
   };
@@ -119,18 +147,15 @@ export default function App() {
       <header className="h-[70px] bg-white border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10 shadow-sm relative">
         <div className="flex items-center gap-2 text-brand-blue">
           <MapIcon size={24} className="stroke-[2.5px]" />
-          <h1 className="text-xl font-[800] tracking-tight">Ledger Intel</h1>
-          <span className="text-text-secondary font-medium ml-2 text-sm tracking-wide bg-gray-100 px-2.5 py-0.5 rounded-full">
-            Real Estate Data Intelligence
-          </span>
+          <h1 className="text-sm font-[800] tracking-tight">kb 부동산시세 증감</h1>
         </div>
 
-        <div className="text-[20px] font-bold text-accent-red">{currentWeekLabel} ({WEEKS_COUNT > 0 ? currentWeek + 1 : 0}주차)</div>
+        <div className="text-md font-bold text-accent-red">{currentWeekLabel} <br></br>({WEEKS_COUNT > 0 ? currentWeek + 1 : 0}주차)</div>
 
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2 bg-gradient-to-r from-brand-blue to-accent-red text-white px-5 py-2.5 rounded-[12px] font-semibold cursor-pointer hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+          <label className="text-sm flex items-center gap-2 bg-gradient-to-r p-2 from-brand-blue text-white bg-blue-500 rounded-[12px] font-semibold cursor-pointer hover:shadow-lg transition-all transform hover:-translate-y-0.5">
             <Upload size={18} />
-            <span>엑셀 데이터 업로드</span>
+            <span>data upload</span>
             <input
               type="file"
               accept=".xlsx,.xls"
@@ -142,7 +167,7 @@ export default function App() {
       </header>
 
       {/* Main Grid - Dual Map Layout */}
-      <main className="flex-1 grid grid-cols-2 gap-5 p-5 overflow-hidden">
+      <main className="flex-1 grid grid-cols-2 gap-2 p-2 overflow-hidden">
         {/* Left Map: Sale */}
         <section
           className="vibrant-card relative flex items-center justify-center overflow-hidden border border-gray-200"
@@ -154,7 +179,7 @@ export default function App() {
               <Map
                 regionData={saleRegionData}
                 currentWeekIndex={currentWeek}
-                title="매매 가격 증감률"
+                title="매매 증감률"
                 transformRef={mapSaleRef}
                 onTransformed={(ref, state) => handleTransformed('SALE', ref, state)}
               />
@@ -178,7 +203,7 @@ export default function App() {
               <Map
                 regionData={jeonseRegionData}
                 currentWeekIndex={currentWeek}
-                title="전세 가격 증감률"
+                title="전세 증감률"
                 transformRef={mapJeonseRef}
                 onTransformed={(ref, state) => handleTransformed('JEONSE', ref, state)}
               />
@@ -193,7 +218,7 @@ export default function App() {
       </main>
 
       {/* Timeline Bar */}
-      < section className="h-[100px] bg-card-bg mx-5 mb-5 rounded-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center px-10 gap-5" >
+      < section className="h-[100px] bg-card-bg mx-3 mb-5 rounded-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center px-5 gap-5" >
         <div className="vibrant-play-btn" onClick={handlePlayToggle}>
           {isPlaying ? <Pause size={20} fill="white" className="text-white" /> : <Play size={20} fill="white" className="text-white ml-1" />}
         </div>
@@ -230,7 +255,7 @@ export default function App() {
           </div>
         </div>
 
-        <div className="w-[120px] text-right">
+        <div className="w-[80px] text-right">
           <button
             onClick={() => setSpeedMultiplier(prev => prev >= 3 ? 1 : prev + 1)}
             className="text-[12px] font-semibold text-text-primary bg-white shadow-sm hover:shadow px-3 py-1.5 rounded-[8px] transition-all border border-gray-100"
