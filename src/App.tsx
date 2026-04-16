@@ -31,7 +31,7 @@ export default function App() {
   const handleTransformed = (source: 'SALE' | 'JEONSE', ref: any, state: any) => {
     // Only propagate the event if this map is the one actively being interacted with
     if (activeMap.current !== source) return;
-    
+
     const targetRef = source === 'SALE' ? mapJeonseRef : mapSaleRef;
     if (!targetRef.current) return;
 
@@ -43,9 +43,9 @@ export default function App() {
       typeof positionY !== 'number' || Number.isNaN(positionY) ||
       typeof scale !== 'number' || Number.isNaN(scale)
     ) {
-      return; 
+      return;
     }
-    
+
     // 0ms animation time = instant sync without transition delay
     targetRef.current.setTransform(positionX, positionY, scale, 0);
   };
@@ -77,7 +77,7 @@ export default function App() {
     if (!parsedData) {
       loadDefaultData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Playback logic
@@ -144,16 +144,16 @@ export default function App() {
       {/* Main Grid - Dual Map Layout */}
       <main className="flex-1 grid grid-cols-2 gap-5 p-5 overflow-hidden">
         {/* Left Map: Sale */}
-        <section 
+        <section
           className="vibrant-card relative flex items-center justify-center overflow-hidden border border-gray-200"
           onMouseEnter={() => { activeMap.current = 'SALE' }}
           onTouchStart={() => { activeMap.current = 'SALE' }}
         >
           <div className="w-full h-full">
             {parsedData ? (
-              <Map 
-                regionData={saleRegionData} 
-                currentWeekIndex={currentWeek} 
+              <Map
+                regionData={saleRegionData}
+                currentWeekIndex={currentWeek}
                 title="매매 가격 증감률"
                 transformRef={mapSaleRef}
                 onTransformed={(ref, state) => handleTransformed('SALE', ref, state)}
@@ -161,23 +161,23 @@ export default function App() {
             ) : (
               <div className="w-full h-full flex items-center justify-center text-text-secondary flex-col gap-2">
                 <MapPin size={32} className="opacity-40" />
-                <p className="font-semibold tracking-wide">데이터를 업로드하면 매매 지도가 표시됩니다.</p>
+                <p className="font-semibold tracking-wide">매매 데이터 로딩 중 .....</p>
               </div>
             )}
           </div>
         </section>
 
         {/* Right Map: Jeonse */}
-        <section 
+        <section
           className="vibrant-card relative flex items-center justify-center overflow-hidden border border-gray-200"
           onMouseEnter={() => { activeMap.current = 'JEONSE' }}
           onTouchStart={() => { activeMap.current = 'JEONSE' }}
         >
           <div className="w-full h-full">
             {parsedData ? (
-              <Map 
-                regionData={jeonseRegionData} 
-                currentWeekIndex={currentWeek} 
+              <Map
+                regionData={jeonseRegionData}
+                currentWeekIndex={currentWeek}
                 title="전세 가격 증감률"
                 transformRef={mapJeonseRef}
                 onTransformed={(ref, state) => handleTransformed('JEONSE', ref, state)}
@@ -185,7 +185,7 @@ export default function App() {
             ) : (
               <div className="w-full h-full flex items-center justify-center text-text-secondary flex-col gap-2">
                 <MapPin size={32} className="opacity-40" />
-                <p className="font-semibold tracking-wide">데이터를 업로드하면 전세 지도가 표시됩니다.</p>
+                <p className="font-semibold tracking-wide">전세 데이터 로딩 중 ......</p>
               </div>
             )}
           </div>
@@ -193,30 +193,30 @@ export default function App() {
       </main>
 
       {/* Timeline Bar */}
-    < section className = "h-[100px] bg-card-bg mx-5 mb-5 rounded-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center px-10 gap-5" >
+      < section className="h-[100px] bg-card-bg mx-5 mb-5 rounded-[20px] shadow-[0_4px_12px_rgba(0,0,0,0.05)] flex items-center px-10 gap-5" >
         <div className="vibrant-play-btn" onClick={handlePlayToggle}>
           {isPlaying ? <Pause size={20} fill="white" className="text-white" /> : <Play size={20} fill="white" className="text-white ml-1" />}
         </div>
-        
+
         <div className="flex-1 relative h-1.5 bg-accent-gray rounded-full">
-          <input 
-            type="range" 
-            min="0" 
-            max={Math.max(0, WEEKS_COUNT - 1)} 
+          <input
+            type="range"
+            min="0"
+            max={Math.max(0, WEEKS_COUNT - 1)}
             value={currentWeek}
             onChange={(e) => setCurrentWeek(parseInt(e.target.value))}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             disabled={WEEKS_COUNT === 0}
           />
-          <div 
-            className="absolute h-full bg-accent-red rounded-full" 
+          <div
+            className="absolute h-full bg-accent-red rounded-full"
             style={{ width: WEEKS_COUNT > 1 ? `${(currentWeek / (WEEKS_COUNT - 1)) * 100}%` : '0%' }}
           />
-          <div 
+          <div
             className="vibrant-slider-handle absolute top-1/2 -translate-y-1/2 -translate-x-1/2 pointer-events-none"
             style={{ left: WEEKS_COUNT > 1 ? `${(currentWeek / (WEEKS_COUNT - 1)) * 100}%` : '0%' }}
           />
-          
+
           <div className="flex justify-between absolute w-full top-5 text-[10px] text-text-secondary">
             {WEEKS_COUNT > 0 && (
               <>
@@ -231,7 +231,7 @@ export default function App() {
         </div>
 
         <div className="w-[120px] text-right">
-          <button 
+          <button
             onClick={() => setSpeedMultiplier(prev => prev >= 3 ? 1 : prev + 1)}
             className="text-[12px] font-semibold text-text-primary bg-white shadow-sm hover:shadow px-3 py-1.5 rounded-[8px] transition-all border border-gray-100"
           >
